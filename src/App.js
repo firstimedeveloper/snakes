@@ -1,26 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import './index.css'
 
-function App() {
+const gridWidth = 20;
+const gridHeight = 20;
+
+function Box(props) {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="w-4 h-4 bg-gray-200 border">
+      {props.value}
     </div>
   );
 }
+
+function Grid(props) {
+  return (
+    <div className="container">
+      {props.grid.map((v,i) => {
+        return (
+          <div className="flex">
+            {v.map((element, j) => {
+              return <Box value={v} key={i}/>
+            })}
+          </div>
+        )
+      })}
+    </div>
+  );
+}
+
+function App() {
+  const [grid, setGrid] = useState(() => generateGrid())
+
+  return (
+    <Grid grid={grid}/>
+  );
+}
+
+function generateGrid() {
+  let newGrid = Array(gridWidth).fill(null).map(x => Array(gridHeight).fill(null))
+  console.log(newGrid)
+  return newGrid
+}
+
 
 export default App;
