@@ -38,7 +38,9 @@ function App() {
   const [direction, setDirection] = useState('right')
   const [gameOver, setGameOver] = useState(true)
 
-  const focusRef = useRef(null)
+  const focusRef = useRef(sPos)
+
+  const posRef = useRef(sPos)
 
   useEffect(()=>{
     focusRef.current.focus()
@@ -46,47 +48,45 @@ function App() {
 
   useEffect(()=>{
     if (!gameOver) {
-      let newGrid = []      
       const interval = setInterval(()=> {
-        console.log(sPos)
-        setSPos(prevPos => {
-          let x = prevPos.x
-          let y = prevPos.y
-          if (x > gridWidth)
-            x = 0
+        let dx = 0
+        let dy = 0 
+        switch (direction) {
+          case "right":
+            dy = 1
+            break;
+          case "left":
+            dy = -1
+            break;
+          case "up":
+            dx = -1
+            break;
+          case "down":
+            dx = 1
+            break;
+          default:
+            break;
+        }
+        
+        setSPos((prevPos) => {
+          let x = prevPos.x + dx
+          let y = prevPos.y + dy
+          if (x > gridHeight - 1)
+          x = 0
           if (x < 0)
-            x = gridWidth-1
-          if (y > gridHeight) 
+            x = gridHeight - 1
+          if (y > gridWidth - 1) 
             y = 0
           if (y < 0)
-            y = gridHeight - 1
-          let dx = 0
-          let dy = 0
-          switch (direction) {
-            case "right":
-              dy = 1
-              break;
-            case "left":
-              dy = -1
-              break;
-            case "up":
-              dx = -1
-              break;
-            case "down":
-              dx = 1
-              break;
-            default:
-              break;
-          }
-  
-          return {x: x+dx, y: y+dy}
-        })
-        newGrid = generateGrid(sPos, sLength)
-        
+            y = gridWidth - 1
 
+          return {x: x, y: y}
+        })
+
+        const newGrid = generateGrid(sPos, sLength)
         setGrid(newGrid)
-      },200)
-      console.log(direction)
+      }, 50)
+      
       return () => clearInterval(interval)
     }
   })
@@ -131,7 +131,11 @@ function generateGrid(position, len) {
   // for(let i=0; i<len; i++) {
   //   newGrid[position.x][(position.y)-i] = 1
   // }
-  newGrid[position.x][position.y] = 1
+  let x = position.x
+  let y = position.y
+  
+
+  newGrid[x][y] = 1
 
   return newGrid
 }
