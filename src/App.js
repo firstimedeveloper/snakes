@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css'
+import { getNodeText } from '@testing-library/react';
 
 const gridWidth = 20;
 const gridHeight = 20;
@@ -8,6 +9,8 @@ function Box(props) {
   let color = "bg-gray-200"
   if (props.value === 1) 
     color = "bg-gray-600"
+  if (props.value === 2)
+    color = "bg-red-600"
 
   return (
     <div className={`w-4 h-4 ${color} border`}>
@@ -35,7 +38,9 @@ function App() {
   const [snake, setSnake] = useState(() => generateSnake(5))
   const [grid, setGrid] = useState(() => generateGrid(snake))
   const [direction, setDirection] = useState('right')
-  const [gameOver, setGameOver] = useState(true)
+  const [gameOver, setGameOver] = useState(false)
+  const [gamePause, setGamePause] = useState(true)
+  
 
   const focusRef = useRef(snake)
 
@@ -46,7 +51,7 @@ function App() {
   }, [])
 
   useEffect(()=>{
-    if (!gameOver) {
+    if (!gameOver && !gamePause) {
       const interval = setInterval(()=> {
         let dx = 0
         let dy = 0 
@@ -66,7 +71,6 @@ function App() {
           default:
             break;
         }
-        console.log(snake[0])
         let x = snakeRef.current[0].x + dx
         let y = snakeRef.current[0].y + dy
         let newSnake = snakeRef.current
@@ -80,6 +84,11 @@ function App() {
           y = gridWidth - 1
         newSnake.unshift({x,y})
         newSnake.pop()
+        if (grid[x][y] === 1) {
+          setGameOver(true)
+          setGamePause(false)
+          return
+        }
         
         setSnake(newSnake)
 
@@ -92,6 +101,8 @@ function App() {
   })
 
   const handleKeyDown = (e) => {
+    if (gamePause) 
+      return
     switch (e.key) {
       case "ArrowLeft":
         if (direction === "right")
@@ -118,16 +129,27 @@ function App() {
     }
   }
 
-  const handleClick = () => {
-    setGameOver(!gameOver)
+  const pauseGame = () => {
+    setGamePause(!gamePause)
+
+  }
+
+  const resetGame = () => {
+    setGameOver(!gameOver)    
   }
 
   return (
     <div tabIndex={0} ref={focusRef} onKeyDown={handleKeyDown} className="flex flex-col justify-center items-center w-screen h-screen focus:outline-none">
       <>
       <Grid grid={grid}/>
-      <div role="button" onClick={handleClick} className="px-4 py-2 mt-2 bg-red-600 rounded text-white text-lg">
-        {gameOver ? "Start":"Reset"}
+      <div className="flex flex-row">
+        {gameOver ? 
+          <div role="button" onClick={resetGame} className="mx-2 px-4 py-2 mt-2 bg-red-600 rounded text-white text-lg">
+          Reset
+        </div> :
+          <div role="button" onClick={pauseGame} className="mx-2 px-4 py-2 mt-2 bg-red-600 rounded text-white text-lg">
+          {gamePause ? "Start":"Pause"}
+        </div>}
       </div>
       </>
     </div>
