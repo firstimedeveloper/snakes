@@ -32,19 +32,18 @@ function Grid(props) {
 }
 
 function App() {
-  const [sLength, setSLength] = useState(3)
-  const [sPos, setSPos] = useState({x:gridWidth/2, y:gridHeight/2})
-  const [grid, setGrid] = useState(() => generateGrid(sPos, sLength))
+  const [snake, setSnake] = useState(() => generateSnake(5))
+  const [grid, setGrid] = useState(() => generateGrid(snake))
   const [direction, setDirection] = useState('right')
   const [gameOver, setGameOver] = useState(true)
 
-  const focusRef = useRef(sPos)
+  const focusRef = useRef(snake)
 
-  const posRef = useRef(sPos)
+  const snakeRef = useRef(snake)
 
   useEffect(()=>{
     focusRef.current.focus()
-  })
+  }, [])
 
   useEffect(()=>{
     if (!gameOver) {
@@ -67,25 +66,26 @@ function App() {
           default:
             break;
         }
+        console.log(snake[0])
+        let x = snakeRef.current[0].x + dx
+        let y = snakeRef.current[0].y + dy
+        let newSnake = snakeRef.current
+        if (x > gridHeight - 1)
+        x = 0
+        if (x < 0)
+          x = gridHeight - 1
+        if (y > gridWidth - 1) 
+          y = 0
+        if (y < 0)
+          y = gridWidth - 1
+        newSnake.unshift({x,y})
+        newSnake.pop()
         
-        setSPos((prevPos) => {
-          let x = prevPos.x + dx
-          let y = prevPos.y + dy
-          if (x > gridHeight - 1)
-          x = 0
-          if (x < 0)
-            x = gridHeight - 1
-          if (y > gridWidth - 1) 
-            y = 0
-          if (y < 0)
-            y = gridWidth - 1
+        setSnake(newSnake)
 
-          return {x: x, y: y}
-        })
-
-        const newGrid = generateGrid(sPos, sLength)
+        const newGrid = generateGrid(snake)
         setGrid(newGrid)
-      }, 50)
+      }, 150)
       
       return () => clearInterval(interval)
     }
@@ -126,16 +126,27 @@ function App() {
   );
 }
 
-function generateGrid(position, len) {
+function generateSnake(len) {
+  let snake = []
+  for(let i=0; i<len; i++) {
+    snake.push({x: gridWidth/2, y: (gridHeight/2)-i})
+  }
+
+
+  return snake
+}
+
+function generateGrid(snake) {
   let newGrid = Array(gridWidth).fill(null).map(x => Array(gridHeight).fill(null))
-  // for(let i=0; i<len; i++) {
-  //   newGrid[position.x][(position.y)-i] = 1
-  // }
-  let x = position.x
-  let y = position.y
+  
+  
+  for(let i=0; i<snake.length; i++) {
+    let x = snake[i].x
+    let y = snake[i].y
+    newGrid[x][y] = 1
+  }
   
 
-  newGrid[x][y] = 1
 
   return newGrid
 }
