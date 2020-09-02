@@ -94,15 +94,23 @@ function App() {
   const handleKeyDown = (e) => {
     switch (e.key) {
       case "ArrowLeft":
+        if (direction === "right")
+          return
         setDirection("left")
         break;
       case "ArrowRight":
+        if (direction === "left")
+          return
         setDirection("right")
         break;
       case "ArrowUp":
+        if (direction === "down")
+          return
         setDirection("up")
         break;
       case "ArrowDown":
+        if (direction === "up")
+          return
         setDirection("down")
         break;
       default:
