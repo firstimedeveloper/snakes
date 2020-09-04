@@ -37,14 +37,14 @@ function Grid(props) {
 function App() {
   const [snake, setSnake] = useState(() => generateSnake(5))
   const [grid, setGrid] = useState(() => generateGrid(snake))
-  const [direction, setDirection] = useState('right')
-  const [gameOver, setGameOver] = useState(false)
-  const [gamePause, setGamePause] = useState(true)
-  
+  const [direction, setDirection] = useState('')
+  const [gameOver, setGameOver] = useState(false)  
 
   const focusRef = useRef(snake)
 
   const snakeRef = useRef(snake)
+
+  const initialRef = useRef(snake)
 
   useEffect(()=>{
     focusRef.current.focus()
@@ -52,42 +52,26 @@ function App() {
 
   useEffect(()=>{
     if (!gameOver) {
-      if (!gamePause) {
-        const interval = setInterval(()=> {
-          const [x, y] = moveSnake()
-          let newSnake = snakeRef.current
-          // insert new element to the beginning of the array.
-          newSnake.unshift({x,y})
-          // remove the last element.
-          newSnake.pop()
-          // if value of square in grid at x, y equals one, game is over.
-          if (grid[x][y] === 1) {
-            setGameOver(true)
-            setGamePause(true)
-            return
-          }
-          
-          setSnake(newSnake)
-
-          const newGrid = generateGrid(snake)
-          setGrid(newGrid)
-        }, 150)
+      const interval = setInterval(()=> {
+        const [x, y] = moveSnake()
+        let newSnake = snakeRef.current
+        // insert new element to the beginning of the array.
+        newSnake.unshift({x,y})
+        // remove the last element.
+        newSnake.pop()
+        // if value of square in grid at x, y equals one, game is over.
+        if (grid[x][y] === 1) {
+          setGameOver(true)
+          return
+        }
         
-        return () => clearInterval(interval)
-      } else {
+        setSnake(newSnake)
 
-      }
-    } else {
-      if (!gamePause) {  
-        setSnake(generateSnake(5))
-        snakeRef.current = snake
-        setGrid(generateGrid(snake))
-        setDirection('right')
-        setGameOver(false)
-        setGamePause(true)
-      } else {
-        
-      }
+        const newGrid = generateGrid(snake)
+        setGrid(newGrid)
+      }, 150)
+      
+      return () => clearInterval(interval)
     }
   })
 
@@ -130,8 +114,6 @@ function App() {
   }
 
   const handleKeyDown = (e) => {
-    if (gamePause) 
-      return
     switch (e.key) {
       case "ArrowLeft":
         if (direction === "right")
@@ -158,21 +140,9 @@ function App() {
     }
   }
 
-  const pauseGame = () => {
-    //setGamePause(!gamePause)
-
-  }
-
   const resetGame = () => {
-    if (gameOver && !gamePause) {
-      setGameOver(false)
-      return
-    }
-    if (gameOver && gamePause) {
-      setGamePause(false)
-    }
-
-    setGamePause(!gamePause)
+    if (gameOver)
+      setGameOver(!gameOver)
 
   }
 
@@ -181,8 +151,8 @@ function App() {
       <>
       <Grid grid={grid}/>
       <div className="flex flex-row">
-          <div role="button" onClick={resetGame} className="mx-2 px-4 py-2 mt-2 bg-red-600 rounded text-white text-lg">
-          {gamePause ? "Start":"Reset"}
+        <div role="button" onClick={resetGame} className="mx-2 px-4 py-2 mt-2 bg-red-600 rounded text-white text-lg ">
+          Start
         </div>
       </div>
       </>
