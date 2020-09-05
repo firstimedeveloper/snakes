@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css'
-import { getNodeText } from '@testing-library/react';
 
 const gridWidth = 20;
 const gridHeight = 20;
@@ -44,17 +43,20 @@ function App() {
 
   const snakeRef = useRef(snake)
 
-  const initialRef = useRef(snake)
+
+  const initialRef = useRef(null)
 
   useEffect(()=>{
     focusRef.current.focus()
+    initialRef.current = snake
+    console.log(initialRef.current)
   }, [])
 
   useEffect(()=>{
-    if (!gameOver) {
+    if (!gameOver && direction !== "") {
       const interval = setInterval(()=> {
-        const [x, y] = moveSnake()
-        let newSnake = snakeRef.current
+        const newSnake = snakeRef.current
+        const [x, y] = moveSnake(newSnake, direction)
         // insert new element to the beginning of the array.
         newSnake.unshift({x,y})
         // remove the last element.
@@ -69,49 +71,11 @@ function App() {
 
         const newGrid = generateGrid(snake)
         setGrid(newGrid)
-      }, 150)
+      }, 100)
       
       return () => clearInterval(interval)
     }
   })
-
-  const calculateDirection = (direction) => {
-    let dx = 0
-    let dy = 0 
-    switch (direction) {
-      case "right":
-        dy = 1
-        break;
-      case "left":
-        dy = -1
-        break;
-      case "up":
-        dx = -1
-        break;
-      case "down":
-        dx = 1
-        break;
-      default:
-        break;
-    }
-    return [dx, dy]
-  }
-  const moveSnake = () => {
-    const [dx, dy] = calculateDirection(direction)
-       
-    let x = snakeRef.current[0].x + dx
-    let y = snakeRef.current[0].y + dy
-    if (x > gridHeight - 1)
-    x = 0
-    if (x < 0)
-      x = gridHeight - 1
-    if (y > gridWidth - 1) 
-      y = 0
-    if (y < 0)
-      y = gridWidth - 1
-    
-    return [x, y]
-  }
 
   const handleKeyDown = (e) => {
     switch (e.key) {
@@ -141,23 +105,72 @@ function App() {
   }
 
   const resetGame = () => {
-    if (gameOver)
+    if (!gameOver && direction === "") {
+      setDirection("right")
+    }
+    if (gameOver) {
       setGameOver(!gameOver)
+      const newSnake = generateSnake(5)
+      setGrid(generateGrid(newSnake))
+      snakeRef.current = newSnake
+      setSnake(newSnake)
+      setDirection('')
+      // snakeRef.current = initialRef.current
+    }
 
   }
 
   return (
     <div tabIndex={0} ref={focusRef} onKeyDown={handleKeyDown} className="flex flex-col justify-center items-center w-screen h-screen focus:outline-none">
       <>
-      <Grid grid={grid}/>
+      <Grid grid={grid} />
       <div className="flex flex-row">
-        <div role="button" onClick={resetGame} className="mx-2 px-4 py-2 mt-2 bg-red-600 rounded text-white text-lg ">
+        <div role="button" onClick={resetGame} className="mx-2 px-4 py-2 mt-2 bg-red-500 rounded text-white text-lg hover:bg-red-600 active:bg-red-700">
           Start
         </div>
       </div>
       </>
     </div>
   );
+}
+
+const calculateDirection = (direction) => {
+  let dx = 0
+  let dy = 0 
+  switch (direction) {
+    case "right":
+      dy = 1
+      break;
+    case "left":
+      dy = -1
+      break;
+    case "up":
+      dx = -1
+      break;
+    case "down":
+      dx = 1
+      break;
+    default:
+      break;
+  }
+  return [dx, dy]
+}
+const moveSnake = (snake, direction) => {
+  console.log(direction)
+  const [dx, dy] = calculateDirection(direction)
+     
+  let x = snake[0].x + dx
+  let y = snake[0].y + dy
+  if (x > gridHeight - 1)
+  x = 0
+  if (x < 0)
+    x = gridHeight - 1
+  if (y > gridWidth - 1) 
+    y = 0
+  if (y < 0)
+    y = gridWidth - 1
+  
+  return [x, y]
 }
 
 function generateSnake(len) {
