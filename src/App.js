@@ -120,9 +120,11 @@ function App() {
     if (gameOver) {
       setGameOver(!gameOver)
       const newSnake = generateSnake(5)
-      setGrid(generateGrid(newSnake))
+      const newObstacles = generateObstacles(3, newSnake)
+      setGrid(generateGrid(newSnake, newObstacles))
       snakeRef.current = newSnake
       setSnake(newSnake)
+      setObstacles(newObstacles)
       setDirection('')
       // snakeRef.current = initialRef.current
     }
