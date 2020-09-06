@@ -35,7 +35,9 @@ function Grid(props) {
 
 function App() {
   const [snake, setSnake] = useState(() => generateSnake(5))
-  const [grid, setGrid] = useState(() => generateGrid(snake))
+  const [obstacles, setObstacles] = useState(() => generateObstacles(3, snake))
+  const [grid, setGrid] = useState(() => generateGrid(snake, obstacles))
+
   const [direction, setDirection] = useState('')
   const [gameOver, setGameOver] = useState(false)  
 
@@ -73,7 +75,7 @@ function App() {
         setSnake(newSnake)
         snakeRef.current = newSnake
 
-        const newGrid = generateGrid(snake)
+        const newGrid = generateGrid(snake, obstacles)
         setGrid(newGrid)
       }, 100)
       
@@ -189,7 +191,23 @@ function generateSnake(len) {
   return snake
 }
 
-function generateGrid(snake) {
+function generateObstacles(count, snake) {
+  let obstacles = []
+  let x = 0
+  let y = 0
+  for (let i=0; i< count; i++) {
+    do {
+      x = Math.floor(Math.random() * gridWidth)
+      y = Math.floor(Math.random() * gridHeight)
+    }
+    while (snake.includes({x: x, y: y}))
+    obstacles.push({x: x, y: y})
+  }
+
+  return obstacles
+}
+
+function generateGrid(snake, obstacles) {
   let newGrid = Array(gridWidth).fill(null).map(x => Array(gridHeight).fill(null))
   
   
@@ -197,6 +215,11 @@ function generateGrid(snake) {
     let x = snake[i].x
     let y = snake[i].y
     newGrid[x][y] = 1
+  }
+  for (let i=0; i<obstacles.length; i++) {
+    let x = obstacles[i].x
+    let y = obstacles[i].y
+    newGrid[x][y] = 2
   }
   
 
