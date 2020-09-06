@@ -38,6 +38,7 @@ function App() {
   const [grid, setGrid] = useState(() => generateGrid(snake))
   const [direction, setDirection] = useState('')
   const [gameOver, setGameOver] = useState(false)  
+  const [wait, setWait] = useState(false)
 
   const focusRef = useRef(snake)
 
@@ -48,13 +49,13 @@ function App() {
 
   useEffect(()=>{
     focusRef.current.focus()
-    initialRef.current = snake
-    console.log(initialRef.current)
+    initialRef.current = snakeRef.current
   }, [])
 
   useEffect(()=>{
-    if (!gameOver && direction !== "") {
+    if (!gameOver && direction !== "" && !wait) {
       const interval = setInterval(()=> {
+        setWait(true)
         const newSnake = snakeRef.current
         const [x, y] = moveSnake(newSnake, direction)
         // insert new element to the beginning of the array.
@@ -73,11 +74,18 @@ function App() {
         setGrid(newGrid)
       }, 100)
       
-      return () => clearInterval(interval)
+      return () => {
+        setWait(false)
+        clearInterval(interval)
+      }
     }
   })
 
   const handleKeyDown = (e) => {
+    if (wait) {
+      return
+    }
+    console.log("clicked!", e.key)
     switch (e.key) {
       case "ArrowLeft":
         if (direction === "right")
@@ -115,6 +123,7 @@ function App() {
       snakeRef.current = newSnake
       setSnake(newSnake)
       setDirection('')
+      setWait(false)
       // snakeRef.current = initialRef.current
     }
 
@@ -156,7 +165,6 @@ const calculateDirection = (direction) => {
   return [dx, dy]
 }
 const moveSnake = (snake, direction) => {
-  console.log(direction)
   const [dx, dy] = calculateDirection(direction)
      
   let x = snake[0].x + dx
