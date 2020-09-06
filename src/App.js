@@ -38,12 +38,11 @@ function App() {
   const [grid, setGrid] = useState(() => generateGrid(snake))
   const [direction, setDirection] = useState('')
   const [gameOver, setGameOver] = useState(false)  
-  const [wait, setWait] = useState(false)
 
   const focusRef = useRef(snake)
 
   const snakeRef = useRef(snake)
-
+  const lastDirRef = useRef(direction)
 
   const initialRef = useRef(null)
 
@@ -53,57 +52,57 @@ function App() {
   }, [])
 
   useEffect(()=>{
-    if (!gameOver && direction !== "" && !wait) {
+    if (!gameOver && direction !== "") {
       const interval = setInterval(()=> {
-        setWait(true)
         const newSnake = snakeRef.current
-        const [x, y] = moveSnake(newSnake, direction)
+        const currentDir = direction
+        const [x, y] = moveSnake(newSnake, currentDir)
         // insert new element to the beginning of the array.
         newSnake.unshift({x,y})
         // remove the last element.
         newSnake.pop()
         // if value of square in grid at x, y equals one, game is over.
+        console.log(x, y)
+
         if (grid[x][y] === 1) {
+          console.log("gg")
           setGameOver(true)
           return
         }
-        
+        lastDirRef.current = currentDir
         setSnake(newSnake)
+        snakeRef.current = newSnake
 
         const newGrid = generateGrid(snake)
         setGrid(newGrid)
       }, 100)
       
       return () => {
-        setWait(false)
         clearInterval(interval)
       }
     }
   })
 
   const handleKeyDown = (e) => {
-    if (wait) {
-      return
-    }
     console.log("clicked!", e.key)
     switch (e.key) {
       case "ArrowLeft":
-        if (direction === "right")
+        if (lastDirRef.current === "right")
           return
         setDirection("left")
         break;
       case "ArrowRight":
-        if (direction === "left")
+        if (lastDirRef.current === "left")
           return
         setDirection("right")
         break;
       case "ArrowUp":
-        if (direction === "down")
+        if (lastDirRef.current === "down")
           return
         setDirection("up")
         break;
       case "ArrowDown":
-        if (direction === "up")
+        if (lastDirRef.current === "up")
           return
         setDirection("down")
         break;
@@ -123,7 +122,6 @@ function App() {
       snakeRef.current = newSnake
       setSnake(newSnake)
       setDirection('')
-      setWait(false)
       // snakeRef.current = initialRef.current
     }
 
@@ -143,10 +141,10 @@ function App() {
   );
 }
 
-const calculateDirection = (direction) => {
+const calculateDirection = (dir) => {
   let dx = 0
   let dy = 0 
-  switch (direction) {
+  switch (dir) {
     case "right":
       dy = 1
       break;
@@ -164,9 +162,9 @@ const calculateDirection = (direction) => {
   }
   return [dx, dy]
 }
-const moveSnake = (snake, direction) => {
-  const [dx, dy] = calculateDirection(direction)
-     
+const moveSnake = (snake, dir) => {
+  const [dx, dy] = calculateDirection(dir)
+  console.log(dir)
   let x = snake[0].x + dx
   let y = snake[0].y + dy
   if (x > gridHeight - 1)
