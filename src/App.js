@@ -56,24 +56,32 @@ function App() {
 useInterval(()=> {
     if (!gameOver && direction !== "") {
       const newSnake = snakeRef.current
+      const newObstacles = [...obstacles]
       const currentDir = direction
       const [x, y] = moveSnake(newSnake, currentDir)
       // insert new element to the beginning of the array.
       newSnake.unshift({x,y})
-      // remove the last element.
-      newSnake.pop()
+      
       // if value of square in grid at x, y equals one, game is over.
       // console.log(x, y)
-
       if (grid[x][y] === 1) {
         // console.log("gg")
         setGameOver(true)
         return
       }
+      if (grid[x][y] === 2) {
+        const idx = newObstacles.findIndex(val => val.x === x && val.y === y)
+        if (idx > -1)
+          newObstacles.splice(idx, 1)
+        console.log(idx, newObstacles)
+      } else {
+        // remove the last element.
+        newSnake.pop()
+      }
       lastDirRef.current = currentDir
       setSnake(newSnake)
       snakeRef.current = newSnake
-
+      setObstacles(newObstacles)
       const newGrid = generateGrid(snake, obstacles)
       setGrid(newGrid)
   }
@@ -92,11 +100,14 @@ useInterval(() => {
       newObstacles.push({x: x, y: y})
 
 
-      console.log(newObstacles)
+      // console.log(newObstacles)
       setObstacles(newObstacles)
     }
 }, 5000)
 
+useEffect(() => {
+  
+})
 
   const handleKeyDown = (e) => {
     // console.log("clicked!", e.key)
