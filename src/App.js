@@ -53,40 +53,53 @@ function App() {
     initialRef.current = snakeRef.current
   }, [])
 
-  useEffect(()=>{
+useInterval(()=> {
     if (!gameOver && direction !== "") {
-      const interval = setInterval(()=> {
-        const newSnake = snakeRef.current
-        const currentDir = direction
-        const [x, y] = moveSnake(newSnake, currentDir)
-        // insert new element to the beginning of the array.
-        newSnake.unshift({x,y})
-        // remove the last element.
-        newSnake.pop()
-        // if value of square in grid at x, y equals one, game is over.
-        console.log(x, y)
+      const newSnake = snakeRef.current
+      const currentDir = direction
+      const [x, y] = moveSnake(newSnake, currentDir)
+      // insert new element to the beginning of the array.
+      newSnake.unshift({x,y})
+      // remove the last element.
+      newSnake.pop()
+      // if value of square in grid at x, y equals one, game is over.
+      // console.log(x, y)
 
-        if (grid[x][y] === 1) {
-          console.log("gg")
-          setGameOver(true)
-          return
-        }
-        lastDirRef.current = currentDir
-        setSnake(newSnake)
-        snakeRef.current = newSnake
-
-        const newGrid = generateGrid(snake, obstacles)
-        setGrid(newGrid)
-      }, 100)
-      
-      return () => {
-        clearInterval(interval)
+      if (grid[x][y] === 1) {
+        // console.log("gg")
+        setGameOver(true)
+        return
       }
+      lastDirRef.current = currentDir
+      setSnake(newSnake)
+      snakeRef.current = newSnake
+
+      const newGrid = generateGrid(snake, obstacles)
+      setGrid(newGrid)
+  }
+}, 150)
+
+useInterval(() => {
+    if (!gameOver && direction !== "") {
+      const newObstacles = [...obstacles]
+      let x = 0
+      let y = 0
+      do {
+        x = Math.floor(Math.random() * gridWidth)
+        y = Math.floor(Math.random() * gridHeight)
+      }
+      while (snake.includes({x: x, y: y}))
+      newObstacles.push({x: x, y: y})
+
+
+      console.log(newObstacles)
+      setObstacles(newObstacles)
     }
-  })
+}, 5000)
+
 
   const handleKeyDown = (e) => {
-    console.log("clicked!", e.key)
+    // console.log("clicked!", e.key)
     switch (e.key) {
       case "ArrowLeft":
         if (lastDirRef.current === "right")
@@ -168,7 +181,7 @@ const calculateDirection = (dir) => {
 }
 const moveSnake = (snake, dir) => {
   const [dx, dy] = calculateDirection(dir)
-  console.log(dir)
+  // console.log(dir)
   let x = snake[0].x + dx
   let y = snake[0].y + dy
   if (x > gridHeight - 1)
@@ -227,6 +240,26 @@ function generateGrid(snake, obstacles) {
 
 
   return newGrid
+}
+
+function useInterval(callback, delay) {
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
 }
 
 
