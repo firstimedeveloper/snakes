@@ -35,8 +35,8 @@ function Grid(props) {
 
 function App() {
   const [snake, setSnake] = useState(() => generateSnake(5))
-  const [obstacles, setObstacles] = useState(() => generateObstacles(3, snake))
-  const [grid, setGrid] = useState(() => generateGrid(snake, obstacles))
+  const [food, setFood] = useState(() => generateFood(3, snake))
+  const [grid, setGrid] = useState(() => generateGrid(snake, food))
 
   const [direction, setDirection] = useState('')
   const [gameOver, setGameOver] = useState(false)  
@@ -56,7 +56,7 @@ function App() {
 useInterval(()=> {
     if (!gameOver && direction !== "") {
       const newSnake = snakeRef.current
-      const newObstacles = [...obstacles]
+      const newFood = [...food]
       const currentDir = direction
       const [x, y] = moveSnake(newSnake, currentDir)
       // insert new element to the beginning of the array.
@@ -70,10 +70,10 @@ useInterval(()=> {
         return
       }
       if (grid[x][y] === 2) {
-        const idx = newObstacles.findIndex(val => val.x === x && val.y === y)
+        const idx = newFood.findIndex(val => val.x === x && val.y === y)
         if (idx > -1)
-          newObstacles.splice(idx, 1)
-        console.log(idx, newObstacles)
+          newFood.splice(idx, 1)
+        console.log(idx, newFood)
       } else {
         // remove the last element.
         newSnake.pop()
@@ -81,15 +81,15 @@ useInterval(()=> {
       lastDirRef.current = currentDir
       setSnake(newSnake)
       snakeRef.current = newSnake
-      setObstacles(newObstacles)
-      const newGrid = generateGrid(snake, obstacles)
+      setFood(newFood)
+      const newGrid = generateGrid(snake, food)
       setGrid(newGrid)
   }
 }, 150)
 
 useInterval(() => {
     if (!gameOver && direction !== "") {
-      const newObstacles = [...obstacles]
+      const newFood = [...food]
       let x = 0
       let y = 0
       do {
@@ -97,11 +97,11 @@ useInterval(() => {
         y = Math.floor(Math.random() * gridHeight)
       }
       while (snake.includes({x: x, y: y}))
-      newObstacles.push({x: x, y: y})
+      newFood.push({x: x, y: y})
 
 
-      // console.log(newObstacles)
-      setObstacles(newObstacles)
+      // console.log(newFood)
+      setFood(newFood)
     }
 }, 5000)
 
@@ -144,11 +144,11 @@ useEffect(() => {
     if (gameOver) {
       setGameOver(!gameOver)
       const newSnake = generateSnake(5)
-      const newObstacles = generateObstacles(3, newSnake)
-      setGrid(generateGrid(newSnake, newObstacles))
+      const newFood = generateFood(3, newSnake)
+      setGrid(generateGrid(newSnake, newFood))
       snakeRef.current = newSnake
       setSnake(newSnake)
-      setObstacles(newObstacles)
+      setFood(newFood)
       setDirection('')
       // snakeRef.current = initialRef.current
     }
@@ -217,8 +217,8 @@ function generateSnake(len) {
   return snake
 }
 
-function generateObstacles(count, snake) {
-  let obstacles = []
+function generateFood(count, snake) {
+  let food = []
   let x = 0
   let y = 0
   for (let i=0; i< count; i++) {
@@ -227,13 +227,13 @@ function generateObstacles(count, snake) {
       y = Math.floor(Math.random() * gridHeight)
     }
     while (snake.includes({x: x, y: y}))
-    obstacles.push({x: x, y: y})
+    food.push({x: x, y: y})
   }
 
-  return obstacles
+  return food
 }
 
-function generateGrid(snake, obstacles) {
+function generateGrid(snake, food) {
   let newGrid = Array(gridWidth).fill(null).map(x => Array(gridHeight).fill(null))
   
   
@@ -242,9 +242,9 @@ function generateGrid(snake, obstacles) {
     let y = snake[i].y
     newGrid[x][y] = 1
   }
-  for (let i=0; i<obstacles.length; i++) {
-    let x = obstacles[i].x
-    let y = obstacles[i].y
+  for (let i=0; i<food.length; i++) {
+    let x = food[i].x
+    let y = food[i].y
     newGrid[x][y] = 2
   }
   
