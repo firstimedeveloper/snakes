@@ -181,6 +181,18 @@ useEffect(() => {
   return (
     <div tabIndex={0} ref={focusRef} onKeyDown={handleKeyDown} className="flex flex-col justify-center items-center w-screen h-screen focus:outline-none">
       <>
+      {gameOver && 
+      <div className="flex justify-center w-64 flex-wrap opacity-75 bg-gray-600 border-gray-600 rounded-lg fixed">
+        <div className="text-center text-6xl text-white">
+          Game Over
+        </div>
+        <div className="text-base">
+          <div role="button" onClick={resetGame} className="mx-2 px-4 py-2 mt-2 bg-red-500 rounded text-white text-lg hover:bg-red-600 active:bg-red-700">
+            Start
+          </div>			
+        </div>
+      </div>  
+      }
       <Grid grid={grid} />
       <div className="flex flex-row">
         <div role="button" onClick={resetGame} className="mx-2 px-4 py-2 mt-2 bg-red-500 rounded text-white text-lg hover:bg-red-600 active:bg-red-700">
