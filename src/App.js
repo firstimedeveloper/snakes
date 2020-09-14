@@ -132,9 +132,13 @@ useEffect(() => {
 
   const handleKeyDown = (e) => {
     // console.log("clicked!", e.key)
+    if (gameOver && e.key === "Enter") {
+      resetGame();
+      return;
+    }
     switch (e.key) {
       case "ArrowLeft":
-        if (lastDirRef.current === "right")
+        if (lastDirRef.current === "right" || direction == "")
           return
         setDirection("left")
         break;
@@ -178,11 +182,16 @@ useEffect(() => {
 
   }
 
+  const handleResetKeyDown = (e) => {
+    if (e.key == "Enter")
+      resetGame();
+  }
+
   return (
     <div tabIndex={0} ref={focusRef} onKeyDown={handleKeyDown} className="flex flex-col justify-center items-center w-screen h-screen focus:outline-none">
       <>
       {gameOver && 
-      <div className="flex justify-center w-64 flex-wrap opacity-75 bg-gray-600 border-gray-600 rounded-lg fixed">
+      <div className="flex justify-center w-64 flex-wrap opacity-75 bg-gray-600 border-gray-600 rounded-lg fixed focus:outline-none">
         <div className="text-center text-6xl text-white">
           Game Over
         </div>
