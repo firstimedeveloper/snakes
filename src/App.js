@@ -133,7 +133,7 @@ useEffect(() => {
   const handleKeyDown = (e) => {
     // console.log("clicked!", e.key)
     if (gameOver && e.key === "Enter") {
-      resetGame();
+      resetGame(); 
       return;
     }
     switch (e.key) {
